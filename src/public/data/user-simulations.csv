@@ -1,0 +1,6 @@
+code,prime,target,type
+T01,radio,RADIO,cog
+T02,kopi,COPY,nei
+T03,pintu,DOOR,tra
+T04,bibir,JAM,con
+T05,jaket,MIROR,NON_WORD
