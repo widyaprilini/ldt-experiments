@@ -77,3 +77,18 @@
   visibility: visible;
   font-weight: bold;
 }
+
+.screen button {
+  padding: 12px;
+  padding-left: 20px;
+  padding-right: 20px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: none;
+  background-color: white;
+  cursor: pointer;
+}
+
+.screen p {
+  font-size: 20px;
+}

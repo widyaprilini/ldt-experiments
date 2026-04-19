@@ -9,7 +9,7 @@
   color: white
   }
   
-  .form-container {
+.form-container {
   background-color: black;
   width: 400px;
   display: flex;
@@ -48,4 +48,3 @@
 .form-title {
   color: white
 }
-

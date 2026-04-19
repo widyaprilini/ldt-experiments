@@ -314,7 +314,7 @@ export default function LdtExperiment() {
   if (phase === PHASE.START) {
     return (
       <div className="screen">
-        <h2>Lexical Decision Task</h2>
+        <h1>Lexical Decision Task</h1>
         <button onClick={() => setPhase(PHASE.INSTRUCTION)}>
           Click to Start Practice Session
         </button>
@@ -325,7 +325,7 @@ export default function LdtExperiment() {
   if (phase === PHASE.INSTRUCTION) {
     return (
       <div className="screen">
-        <h3>Instructions</h3>
+        <h2>Instructions</h2>
         <p>
           You will see a word on the screen.<br /><br />
           Press <b>F</b> if it is a REAL word.<br />
