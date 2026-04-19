@@ -1,11 +1,13 @@
-import "./identityForm.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useSubmissionId } from "../../hooks/useSubmissionId";
 import "./identityForm.css";
 
 export default function IdentityForm() {
   const navigate = useNavigate();
+  const respondentId = useSubmissionId();
+  
   const [form, setForm] = useState({
     name: "",
     gender: ""
@@ -24,7 +26,7 @@ export default function IdentityForm() {
     e.preventDefault();
     sessionStorage.setItem("ldt_access", "true");
     navigate("/ldt-experiment", {
-      state: { form }
+      state: { form, respondentId }
     });
   };
 
