@@ -52,8 +52,17 @@ export default function LdtExperiment() {
   usePreventLeave(phase !== PHASE.RESULT && phase !== PHASE.START && phase !== PHASE.INSTRUCTION);
 
   const isTrialPhase = useMemo(() => blockIndex > 0, [blockIndex]);
-  console.log(totalBlock, blockIndex);
   const isResultPhase = blockIndex >= totalBlock && trialIndex + 1 >= currentBlockData.length;
+
+  function closeFullscreen() {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) { 
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { 
+      document.msExitFullscreen();
+    }
+  }
 
   function goNextTrial() {
     if(trialIndex + 1 >= currentBlockData.length && blockIndex < totalBlock) {
@@ -62,6 +71,7 @@ export default function LdtExperiment() {
       return;
     }
     if (isResultPhase) {
+      closeFullscreen();
       setPhase(PHASE.RESULT);
       return;
     }
@@ -71,6 +81,7 @@ export default function LdtExperiment() {
 
   function goNextBlock() {
     if (isResultPhase) {
+      closeFullscreen();
       setPhase(PHASE.RESULT);
       return;
     }
@@ -305,7 +316,7 @@ export default function LdtExperiment() {
       <div className="screen">
         <h2>Lexical Decision Task</h2>
         <button onClick={() => setPhase(PHASE.INSTRUCTION)}>
-          Click to Start
+          Click to Start Practice Session
         </button>
       </div>
     );

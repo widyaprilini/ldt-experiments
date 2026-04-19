@@ -1,15 +1,7 @@
-.experiment-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  font-size: 60px;
-  font-weight: bold;
-}
 .screen {
-  width: 900px;
-  height: 700px;
-  background: black;
+  width: 100vw;
+  height: 100vh; 
+  background-color: black;
   color: white;
   display: flex;
   flex-direction: column;
@@ -20,15 +12,17 @@
 }
 
 .experiment {
-  width: 900px;
-  height: 700px;
-  margin: 30px auto;
-  background: black;
-  position: relative;
+  width: 100vw;
+  height: 100vh; 
+  margin: 0;
+  background-color: black;
+  position: fixed;
   overflow: hidden;
   color: white;
   font-family: Arial, sans-serif;
   text-align: center;
+  user-select: none;
+  cursor: none;
 }
 
 .stimulus {

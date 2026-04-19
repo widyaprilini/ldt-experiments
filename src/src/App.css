@@ -4,7 +4,6 @@ body {
 }
 
 .app-container {
-  background-color: white;
   height: 100vh;
   display: flex;
   justify-content: center;
@@ -12,10 +11,8 @@ body {
 }
 
 .main-box {
-  width: 900px;
-  height: 800px;
-  background-color: black;
-  border-radius: 12px;
+  width: 100vw;
+  height: 100vh; 
   display: flex;
   justify-content: center;
   align-items: center;

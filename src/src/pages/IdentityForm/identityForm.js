@@ -7,7 +7,7 @@ import "./identityForm.css";
 export default function IdentityForm() {
   const navigate = useNavigate();
   const respondentId = useSubmissionId();
-  
+
   const [form, setForm] = useState({
     name: "",
     gender: ""
@@ -17,6 +17,14 @@ export default function IdentityForm() {
     sessionStorage.removeItem("ldt_access");
   }, []);
 
+  function enterFullscreen() {
+    const el = document.documentElement;
+
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if (el.msRequestFullscreen) el.msRequestFullscreen();
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
@@ -25,12 +33,14 @@ export default function IdentityForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     sessionStorage.setItem("ldt_access", "true");
+    enterFullscreen();
     navigate("/ldt-experiment", {
       state: { form, respondentId }
     });
   };
 
   return (
+    <div className="container">
     <form className="form-container" onSubmit={handleSubmit}>
       <h2 className="form-title">Participant Information</h2>
 
@@ -41,7 +51,7 @@ export default function IdentityForm() {
         value={form.name}
         onChange={handleChange}
         required
-      />
+        />
       <input
         type="number"
         name="age"
@@ -50,18 +60,19 @@ export default function IdentityForm() {
         max="99"
         onChange={handleChange}
         required
-      />
+        />
       <select
         name="gender"
         value={form.gender}
         onChange={handleChange}
         required
-      >
+        >
         <option value="" disabled>-- Select Gender --</option>
         <option value="M">Male</option>
         <option value="F">Female</option>
       </select>
       <button type="submit">Start</button>
     </form>
+    </div>
   );
 }
