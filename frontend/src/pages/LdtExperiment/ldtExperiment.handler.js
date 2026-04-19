@@ -2,7 +2,7 @@ import axios from "axios";
 
 export async function submitLdtResult(payload) {
     try {
-        const res = await axios.post("/api/ldt/response", payload);
+        const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/ldt/response`, payload);
         return res.data;
     } catch (err) {
         console.error("API Error:", err);
