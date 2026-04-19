@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState, useRef } from "react";
 
-import { loadAndShuffleCsv } from "../../utils/csvHandler";
+import { loadAndShuffleCsv, groupByBlock } from "../../utils";
 import { submitLdtResult } from "./ldtExperiment.handler";
 import { usePreventLeave } from "../../hooks/usePreventLeave";
 
@@ -16,6 +16,7 @@ const PHASE = {
   TARGET: "target",
   FEEDBACK: "feedback",
   BLANK: "blank",
+  BREAK: "break",
   RESULT: "result"
 };
 
@@ -26,10 +27,15 @@ export default function LdtExperiment() {
   const startTimeRef = useRef(null);
 
   const respondentInformation = location.state?.form;
+  const respondentId = location.state?.respondentId;
 
-  const [allSetData, setAllSetData] = useState([]);
-  const [simulationLength, setSimulationLength] = useState(0);
-  const [allSetIndex, setAllSetIndex] = useState(0);
+  const [breakTime, setBreakTime] = useState(60);
+
+  const [allSetData, setAllSetData] = useState({});
+  const [totalBlock, setTotalBlock] = useState(0);
+  const [totalData, setTotalData] = useState(0);
+  const [blockIndex, setBlockIndex] = useState(0);
+  const [trialIndex, setTrialIndex] = useState(0);
 
   const [phase, setPhase] = useState(PHASE.START);
 
@@ -39,21 +45,38 @@ export default function LdtExperiment() {
 
   const [feedback, setFeedback] = useState("");
   const [submitStatus, setSubmitStatus] = useState("idle");
+  
+  const currentBlockData = allSetData[blockIndex] || [];
+  const currentTrial = currentBlockData[trialIndex];
 
-  const currentTrial = allSetData[allSetIndex];  
   usePreventLeave(phase !== PHASE.RESULT && phase !== PHASE.START && phase !== PHASE.INSTRUCTION);
 
-  const isTrialPhase = useMemo(() => {
-    return allSetIndex >= simulationLength;
-  }, [allSetIndex, simulationLength]);
+  const isTrialPhase = useMemo(() => blockIndex > 0, [blockIndex]);
+  console.log(totalBlock, blockIndex);
+  const isResultPhase = blockIndex >= totalBlock && trialIndex + 1 >= currentBlockData.length;
 
-  function goNext() {
-    if (allSetIndex + 1 >= allSetData.length) {
-      setPhase(PHASE.RESULT);
-    } else {
-      setAllSetIndex((prev) => prev + 1);
-      setPhase(PHASE.BLANK);
+  function goNextTrial() {
+    if(trialIndex + 1 >= currentBlockData.length && blockIndex < totalBlock) {
+      setBreakTime(60);
+      setPhase(PHASE.BREAK);
+      return;
     }
+    if (isResultPhase) {
+      setPhase(PHASE.RESULT);
+      return;
+    }
+    setTrialIndex((prev) => prev + 1);
+    setPhase(PHASE.BLANK);
+  }
+
+  function goNextBlock() {
+    if (isResultPhase) {
+      setPhase(PHASE.RESULT);
+      return;
+    }
+    setTrialIndex(0);
+    setBlockIndex((prev) => prev + 1);
+    setPhase(PHASE.BLANK);
   }
 
   async function handleSubmit() {
@@ -61,17 +84,25 @@ export default function LdtExperiment() {
 
     try {
       console.log({
-        respondentInformation,
+        respondentInformation: {
+          ...respondentInformation,
+          respondentId
+        },
         results,
-        correctCount,
-        respondedCount
+        totalCorrect: correctCount,
+        totalResponded: respondedCount,
+        totalData
       });
 
       await submitLdtResult({
-        respondentInformation,
+        respondentInformation: {
+          ...respondentInformation,
+          respondentId
+        },
         results,
-        correctCount,
-        respondedCount
+        totalCorrect: correctCount,
+        totalResponded: respondedCount,
+        totalData
       });
 
       setSubmitStatus("success");
@@ -88,8 +119,15 @@ export default function LdtExperiment() {
       const simulations = await loadAndShuffleCsv("/data/user-simulations.csv", true);
       const trials = await loadAndShuffleCsv("/data/user-trials.csv", true);
 
-      setSimulationLength(simulations.length);
-      setAllSetData([...simulations, ...trials]);
+      const { blockedTrials, totalBlock, totalData } = groupByBlock(trials);
+
+      setAllSetData({
+        0: simulations,
+        ...blockedTrials
+      });
+      setTotalBlock(totalBlock);
+      setBlockIndex(0);
+      setTotalData(totalData);
     };
 
     fetchData();
@@ -118,7 +156,7 @@ export default function LdtExperiment() {
     }
 
     if (phase === PHASE.FEEDBACK) {
-      timer = setTimeout(goNext, 1000);
+      timer = setTimeout(goNextTrial, 1000);
     }
 
     return () => clearTimeout(timer);
@@ -135,7 +173,7 @@ export default function LdtExperiment() {
   useEffect(() => {
     if (phase !== PHASE.TARGET) return;
 
-    const isPseudo = currentTrial.type === "NON_WORD";
+    const isPseudoword = currentTrial.type === "nw";
     let responded = false;
 
     function handleKey(e) {
@@ -147,26 +185,25 @@ export default function LdtExperiment() {
       const rt = (performance.now() - startTimeRef.current) / 1000;
 
       const isCorrect =
-        (!isPseudo && e.key === "f") ||
-        (isPseudo && e.key === "j");
+        (!isPseudoword && e.key === "f") ||
+        (isPseudoword && e.key === "j");
 
       if (isTrialPhase) {
-        setRespondedCount((p) => p + 1);
-        if (isCorrect) setCorrectCount((p) => p + 1);
+        setRespondedCount((prev) => prev + 1);
+        if (isCorrect) setCorrectCount((prev) => prev + 1);
 
-        if(!isPseudo){
-          setResults((prev) => [
-            ...prev,
-            {
-              trialData: currentTrial,
-              response: e.key.toUpperCase(),
-              rt: rt.toFixed(3),
-              isCorrect
-            }
-          ]);
-        }
+        setResults((prev) => [
+          ...prev,
+          {
+            trialData: currentTrial,
+            response: e.key.toUpperCase(),
+            rt: rt.toFixed(3),
+            isPseudoword,
+            isCorrect
+          }
+        ]);
 
-        goNext();
+        goNextTrial();
         return;
       }
 
@@ -181,20 +218,26 @@ export default function LdtExperiment() {
 
       responded = true;
 
-      if (isTrialPhase && !isPseudo) {
+      if (!isTrialPhase) {
+        setFeedback("TOO SLOW!");
+        setPhase(PHASE.FEEDBACK);
+      }
+
+      if (isTrialPhase) {
         setResults((prev) => [
           ...prev,
           {
             trialData: currentTrial,
             response: "none",
             rt: 2000,
+            isPseudoword,
             isCorrect: false
           }
         ]);
-      }
 
-      setFeedback("TOO SLOW!");
-      setPhase(PHASE.FEEDBACK);
+        goNextTrial();
+        return;
+      }
     }, 2000);
 
     return () => {
@@ -204,11 +247,51 @@ export default function LdtExperiment() {
   }, [phase, currentTrial, isTrialPhase]);
 
   useEffect(() => {
+    if (phase !== PHASE.BREAK) return;
+
+    setBreakTime(60);
+
+    let allowSkip = false;
+
+    const interval = setInterval(() => {
+      setBreakTime((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          goNextBlock();
+          return 0;
+        }
+
+        if (prev === 51) {
+          allowSkip = true;
+        }
+
+        return prev - 1;
+      });
+    }, 1000);
+
+    function handleKey(e) {
+      if (e.key !== "f" && e.key !== "j") return;
+
+      if (allowSkip) {
+        clearInterval(interval);
+        goNextBlock();
+      }
+    }
+
+    window.addEventListener("keydown", handleKey);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [phase]);
+
+  useEffect(() => {
     if (phase !== PHASE.INSTRUCTION) return;
 
     function handleStart(e) {
       if (e.key === "f" || e.key === "j") {
-        setAllSetIndex(0);
+        setTrialIndex(0);
         setPhase(PHASE.FIXATION);
       }
     }
@@ -267,6 +350,31 @@ export default function LdtExperiment() {
     );
   }
 
+  if (phase === PHASE.BREAK) {
+    return (
+      <>
+      <div className="screen">
+        {blockIndex > 0 ?
+        (
+          <>
+            <h2>You have completed {(blockIndex/totalBlock*100).toFixed(2)}% of the experiment.</h2>
+          </>
+        ) : (
+          <>
+            <h2>Practice session completed.</h2>
+            <p>You will now begin the actual experiment.</p>
+          </>
+        )
+      }
+      <p>Continue automatically in {breakTime}s</p>
+      <p className={`skip-text ${breakTime <= 50 ? "show" : ""}`}>
+        Press F or J if you want to continue immediately
+      </p>
+      </div>
+      </>
+    );
+  }
+
   return (
     <div className="experiment">
       {phase === PHASE.FIXATION && <div className="stimulus">+</div>}
@@ -288,18 +396,12 @@ export default function LdtExperiment() {
           </div>
 
           <div className="targetWord">
-            {currentTrial.target}
+            {currentTrial.target.toUpperCase()}
           </div>
 
           <div className="maskBottom">
             ******************************
           </div>
-
-          {isTrialPhase && (
-            <div className="trialCounter">
-              Trial(s): {allSetIndex - simulationLength + 1}
-            </div>
-          )}
         </>
       )}
 

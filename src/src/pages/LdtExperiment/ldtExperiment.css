@@ -73,3 +73,13 @@
   bottom: 20%;
   width: 100%;
 }
+
+.skip-text {
+  visibility: hidden;
+  height: 24px;
+}
+
+.skip-text.show {
+  visibility: visible;
+  font-weight: bold;
+}
