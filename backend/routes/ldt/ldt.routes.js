@@ -7,7 +7,7 @@ router.post("/response", saveLdtResponseHandler);
 
 router.get("/health-check", (req, res) => {
   res.status(200).json({
-      message: "Backend OK"
+      message: "Health Check: OK"
     });
 });
 
