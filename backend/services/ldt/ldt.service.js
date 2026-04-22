@@ -23,11 +23,15 @@ const processLdtResponse = async (data) => {
         TYPE_ORDER[a.trialData.type] - TYPE_ORDER[b.trialData.type]
       )
       .map((eachResult) => {
-        const { trialData, response: keyPressed, rt, isCorrect, isPseudoword } = eachResult;
-        const { block, code, prime, target, type } = trialData;
+        const { 
+          timestamp, index, block,
+          code, prime, target,
+          type, response: keyPressed,
+          rt, isCorrect, isPseudoword 
+        } = eachResult;
   
-        const isResponded = Number(rt) < 2000 ? 1 : 0;
-        const isError = isCorrect ? 0 : 1;
+        const isResponded = response === null ? 1 : 0;
+        const isCorrectValue = isCorrect ? 1 : 0;
         const isPseudowordValue = isPseudoword ? 1 : 0;
   
         const orthoRel = REL_VALUE[type].orthoRel;
@@ -35,10 +39,12 @@ const processLdtResponse = async (data) => {
         const typeCode = TYPE_ORDER[type] + 1;
   
         return [
+          timestamp,
           respondentId,
           name,
           gender,
           age,
+          index,
           code,
           block,
           type,
@@ -51,7 +57,7 @@ const processLdtResponse = async (data) => {
           isResponded,
           keyPressed,
           rt,
-          isError
+          isCorrectValue
         ];
       });
     
