@@ -18,3 +18,55 @@ body {
   align-items: center;
   color: white
 }
+
+body {
+  background-color: black;
+}
+
+.stimulus {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+}
+
+.question {
+  position: absolute;
+  top: 30%;
+  width: 100%;
+  font-size: 20px;
+}
+
+.maskTop {
+  position: absolute;
+  top: 42%;
+  width: 100%;
+  font-size: 28px;
+}
+
+.targetWord {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+}
+
+.maskBottom {
+  position: absolute;
+  bottom: 40%;
+  width: 100%;
+  font-size: 28px;
+}
+
+.jspsych-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  height: 100vh;
+  width: 100%;
+  text-align: center;
+}

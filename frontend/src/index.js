@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import App from "./App";
 import IdentityForm from "./pages/IdentityForm/identityForm";
-import LdtExperiment from "./pages/LdtExperiment/ldtExperiment";
+import LdtExperiment from "./pages/LdtExperiment/ldtExperimentNew";
 import ProtectedRoute from "./root/protectedRoute";
 
 const router = createBrowserRouter([
