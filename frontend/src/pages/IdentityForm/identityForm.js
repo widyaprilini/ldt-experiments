@@ -51,12 +51,14 @@ export default function IdentityForm() {
         value={form.name}
         onChange={handleChange}
         required
+        autocomplete="off"
         />
       <input
         type="number"
         name="age"
         placeholder="Age"
         value={form.age}
+        min="18"
         max="99"
         onChange={handleChange}
         required
