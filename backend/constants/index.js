@@ -12,6 +12,7 @@ const COLUMN_KEY = [
   "respondentName",
   "gender",
   "age",
+  "index",
   "trialCode",
   "block",
   "cond",
@@ -24,7 +25,7 @@ const COLUMN_KEY = [
   "isResponded",
   "keyPressed",
   "RT",
-  "isError"
+  "isCorrect"
 ];
 
 const REL_VALUE = {

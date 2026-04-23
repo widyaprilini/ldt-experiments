@@ -20,18 +20,22 @@ const processLdtResponse = async (data) => {
   try {
     const mappedResult = results
       .sort((a, b) => 
-        TYPE_ORDER[a.trialData.type] - TYPE_ORDER[b.trialData.type]
+        TYPE_ORDER[a.type] - TYPE_ORDER[b.type]
       )
       .map((eachResult) => {
         const { 
           timestamp, index, block,
           code, prime, target,
-          type, response: keyPressed,
+          type, response,
           rt, isCorrect, isPseudoword 
         } = eachResult;
-  
-        const isResponded = response === null ? 1 : 0;
-        const isCorrectValue = isCorrect ? 1 : 0;
+
+        const isResponded = response !== null;
+
+        const keyPressed = isResponded ? response : "none";
+        const rtValue = rt !== null ? rt : 2000;
+        const isRespondedValue = isResponded ? 1 : 0;
+        const isCorrectValue = !isResponded ? 99 : isCorrect ? 1 : 0;
         const isPseudowordValue = isPseudoword ? 1 : 0;
   
         const orthoRel = REL_VALUE[type].orthoRel;
@@ -54,9 +58,9 @@ const processLdtResponse = async (data) => {
           isPseudowordValue,
           prime,
           target,
-          isResponded,
+          isRespondedValue,
           keyPressed,
-          rt,
+          rtValue,
           isCorrectValue
         ];
       });
