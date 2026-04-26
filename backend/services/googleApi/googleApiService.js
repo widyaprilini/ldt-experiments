@@ -36,7 +36,7 @@ async function safeAppendRows({
   sheetRange,
   chunkSize = 100
 }) {
-  const existingKeys = await getExistingKeys("result!A:E");
+  const existingKeys = await getExistingKeys(sheetRange);
 
   const filteredRows = data.filter((row) => {
     const key = `${respondentId}-${row[4]}`;

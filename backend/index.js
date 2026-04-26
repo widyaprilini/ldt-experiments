@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 
 const ldtRoutes = require("./routes/ldt/ldt.routes");
+const lextaleRoutes = require("./routes/lextale/lextale.routes");
 
 const app = express();
 
@@ -13,5 +14,6 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/ldt', ldtRoutes);
+app.use('/api/lextale', lextaleRoutes);
 
 module.exports = app;

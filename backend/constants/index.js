@@ -53,7 +53,9 @@ const REL_VALUE = {
 
 const SHEET_RANGE = {
   results: "result!A:M",
-  correctCount: "correctCount!A:B" 
+  correctCount: "correct_count!A:B",
+  lextaleResults: 'lextale_result!A:F',
+  lextaleScore: 'lextale_score!A:E',
 }
 
 module.exports = { TYPE_ORDER, COLUMN_KEY, REL_VALUE, SHEET_RANGE };
