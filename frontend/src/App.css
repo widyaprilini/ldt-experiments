@@ -19,10 +19,6 @@ body {
   color: white
 }
 
-body {
-  background-color: black;
-}
-
 .stimulus {
   position: absolute;
   top: 50%;
@@ -69,4 +65,93 @@ body {
   height: 100vh;
   width: 100%;
   text-align: center;
+}
+
+#jspsych-progressbar-container span {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+#jspsych-progressbar-container {
+  display: none !important;
+}
+
+body {
+  background-color: black;
+  margin: 0;
+  font-family: sans-serif;
+}
+
+.experiment-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.jspsych-btn {
+  display: none !important;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: #eee;
+  padding: 50px 60px;
+  border-radius: 6px;
+  width: 600px;
+  text-align: center;
+  color: black;
+}
+
+.word {
+  font-size: 32px;
+  font-style: italic;
+  margin-bottom: 40px;
+}
+
+.btn-group {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.btn {
+  padding: 15px 40px;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  color: white;
+}
+
+.btn.no {
+  background: red;
+}
+
+.btn.yes {
+  background: green;
+}
+
+.progress-container {
+  width: 100%;
+  height: 20px;
+  background: #ddd;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #aaa;
+  transition: width 0.3s;
 }

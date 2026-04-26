@@ -9,9 +9,7 @@ export function usePreventLeave(when) {
     if (blocker.state === "blocked") {
       const confirmLeave = window.confirm(
         "Are you sure you want to leave the experiment?"
-      );
-      console.log(confirmLeave);
-      
+      );      
 
       if (confirmLeave) {
         blocker.proceed();

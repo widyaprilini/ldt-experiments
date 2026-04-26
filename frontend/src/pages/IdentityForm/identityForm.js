@@ -15,6 +15,7 @@ export default function IdentityForm() {
 
   useEffect(() => {
     sessionStorage.removeItem("ldt_access");
+    closeFullscreen();
   }, []);
 
   function enterFullscreen() {
@@ -25,6 +26,16 @@ export default function IdentityForm() {
     else if (el.msRequestFullscreen) el.msRequestFullscreen();
   }
 
+  async function closeFullscreen() {
+    // if (document.exitFullscreen) {
+    //   await document.exitFullscreen();
+    if (document.webkitExitFullscreen) { 
+      await document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { 
+      await document.msExitFullscreen();
+    }
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
@@ -33,8 +44,9 @@ export default function IdentityForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     sessionStorage.setItem("ldt_access", "true");
+    localStorage.clear();
     enterFullscreen();
-    navigate("/ldt-experiment", {
+    navigate("/lextale", {
       state: { form, respondentId }
     });
   };
@@ -51,7 +63,7 @@ export default function IdentityForm() {
         value={form.name}
         onChange={handleChange}
         required
-        autocomplete="off"
+        autoComplete="off"
         />
       <input
         type="number"
