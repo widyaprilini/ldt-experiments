@@ -215,8 +215,8 @@ export default function LdtExperimentNew() {
       });
       jsPsychRef.current = jsPsych;
 
-      const practice = await loadAndShuffleCsv("/tempData/user-simulations.csv", true);
-      const trials = await loadAndShuffleCsv("/tempData/user-trials.csv", true);
+      const practice = await loadAndShuffleCsv("/data/user-simulations.csv", true);
+      const trials = await loadAndShuffleCsv("/data/user-trials.csv", true);
 
       const { blockedTrials, totalBlock, totalData } = groupByBlock(trials);
 
