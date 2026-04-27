@@ -26,7 +26,7 @@ async function getExistingKeys(range) {
   const rows = await getSheetData(range);
 
   return new Set(
-    rows.map(row => `${row[0]}-${row[4]}`)
+    rows.map(row => `${row[1]}-${row[7]}`)
   );
 }
 
@@ -39,7 +39,7 @@ async function safeAppendRows({
   const existingKeys = await getExistingKeys(sheetRange);
 
   const filteredRows = data.filter((row) => {
-    const key = `${respondentId}-${row[4]}`;
+    const key = `${respondentId}-${row[7]}`;
     return !existingKeys.has(key);
   });
 

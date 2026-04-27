@@ -13,7 +13,7 @@ const processLdtResponse = async (data) => {
   const { 
     results, 
     respondentInformation : {
-      name, gender, age, respondentId
+      name, gender, age, respondentId, hand
     }
   } = data;
 
@@ -48,6 +48,7 @@ const processLdtResponse = async (data) => {
           name,
           gender,
           age,
+          hand,
           index,
           code,
           block,
