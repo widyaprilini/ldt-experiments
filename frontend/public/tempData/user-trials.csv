@@ -1,0 +1,11 @@
+block,code,prime,target,type
+1,T001,nama,NAME,cog
+2,T002,zona,ZONE,cog
+1,T014,pagi,PAGE,nei
+2,T015,desa,DESK,nei
+1,T026,kaki,FOOT,tra
+2,T027,warna,COLOR,tra
+1,T043,rumah,WATER,unr
+2,T044,kasih,ORDER,unr
+1,T049,intah,DEAMY,nw
+2,T050,cibis,FLURY,nw
