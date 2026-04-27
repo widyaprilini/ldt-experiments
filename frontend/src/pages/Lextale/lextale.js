@@ -1,10 +1,11 @@
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { initJsPsych } from "jspsych";
+import htmlKeyboardResponse from "@jspsych/plugin-html-keyboard-response";
 import htmlButtonResponse from "@jspsych/plugin-html-button-response";
 import "jspsych/css/jspsych.css";
 
-import { LEXTALE_STIMULI, LEXTALE_STITMULI_PRACTICE } from "../../constants";
+import { LEXTALE_STIMULI, LEXTALE_STITMULI_PRACTICE, LEXTALE_STIMULI_TEST, RIGHT_HANDED_VALUE, LEFT_HANDED_VALUE } from "../../constants";
 import { saveLextaleResponse } from "./lextale.handler";
 
 export default function LextaleExperiment() {
@@ -17,6 +18,11 @@ export default function LextaleExperiment() {
 
   const form = location.state?.form;
   const respondentId = location.state?.respondentId;
+  const dominantHand = form?.dominantHand;
+  const isRightHanded = dominantHand === 'R';
+
+  const configuration = isRightHanded ? RIGHT_HANDED_VALUE : LEFT_HANDED_VALUE;
+  const { wordSymbol, nonWordSymbol } = configuration;
 
   useEffect(() => {
     if (hasRun.current) return;
@@ -39,10 +45,10 @@ export default function LextaleExperiment() {
 
     jsPsychRef.current = jsPsych;
 
-    function saveToLocal(lextaleData) {
+    function saveToLocal(payload) {
       try {
         const stored = JSON.parse(localStorage.getItem("lextale_backup") || "[]");
-        stored.push(lextaleData);
+        stored.push(payload);
         localStorage.setItem("lextale_backup", JSON.stringify(stored));
         console.log("✅ Data saved locally as backup.");
       } catch (err) {
@@ -130,7 +136,7 @@ export default function LextaleExperiment() {
       }
     }
 
-    const remainingStimuli = LEXTALE_STIMULI.filter(s => s.id > 0);
+    const remainingStimuli = LEXTALE_STIMULI_TEST.filter(s => s.id > 0);
     const shuffledRemaining = jsPsych.randomization.shuffle(remainingStimuli);
     const stimuliList = [...LEXTALE_STITMULI_PRACTICE, ...shuffledRemaining];
 
@@ -144,7 +150,7 @@ export default function LextaleExperiment() {
     const totalMainTrials = stimuliList.length;
 
     const beforeLextale = {
-      type: htmlButtonResponse,
+      type: htmlKeyboardResponse,
       stimulus: `
         <div class="overlay">
           <div class="modal">
@@ -152,17 +158,34 @@ export default function LextaleExperiment() {
             <p>This is a pre-test designed to measure your vocabulary proficiency.</p>
             <p>It will take approximately 5–10 minutes to complete and will be administered before the main experiment.</p>
             <p>Please complete it carefully.</p>
-            <button id="start-btn" class="btn yes">Start</button>
+            <p>Press <b>Space</b> to begin.</p>
           </div>
         </div>
       `,
-      choices: [],
-      on_load: () => {
-        document.getElementById("start-btn").onclick = () => {
-          jsPsych.finishTrial();
-        };
-      }
+      choices: [" "]
     };
+
+    const instructions = {
+      type: htmlKeyboardResponse,
+      stimulus: `
+        <div class="overlay">
+          <div class="modal">
+            <h2>Instructions</h2>
+              <p>
+              You will see a word on the screen.<br/><br/>
+              Press <b>${nonWordSymbol}</b> if it is a NON word.<br/>
+              Press <b>${wordSymbol}</b> if it is a REAL word.<br/><br/>
+              Respond as quickly and accurately as possible.
+            </p>
+            <p>Press <b>F</b> or <b>J</b> to begin.</p>
+            </div>
+          </div>
+        `,
+        choices: ["f", "j"],
+        on_finish: () => {
+          jsPsych.finishTrial();
+        }
+      };
 
     const afterLextale = {
       type: htmlButtonResponse,
@@ -202,21 +225,24 @@ export default function LextaleExperiment() {
     };
 
     const mainLextale = {
-      type: htmlButtonResponse,
+      type: htmlKeyboardResponse,
       stimulus: () => {
         const word = jsPsych.evaluateTimelineVariable("stimulus");
+        const wordChoice = `<div class="choice word">REAL WORD (<b> ${wordSymbol} </b>)</div>`;
+        const nonWordChoice = `<div class="choice non-word">NON WORD (<b> ${nonWordSymbol} </b>)</div>`;
+
+        const choice = isRightHanded ? `${nonWordChoice}${wordChoice}` : `${wordChoice}${nonWordChoice}`
 
         return `
           <div class="overlay">
             <div class="modal">
 
-              <div class="word">
+              <div class="target">
                 ${word}
               </div>
 
               <div class="btn-group">
-                <button id="btn-no" class="btn no">no</button>
-                <button id="btn-yes" class="btn yes">yes</button>
+                ${choice}
               </div>
 
               <div class="progress-container">
@@ -227,12 +253,11 @@ export default function LextaleExperiment() {
           </div>
         `;
       },
-      choices: [],
+      choices: ["f", "j"],
       data: {
         phase: "main"
       },
       on_load: () => {
-        const trialStart = performance.now();
         const progressPercent = (mainTrialCount / totalMainTrials) * 100;
         mainTrialCount++;
 
@@ -240,31 +265,14 @@ export default function LextaleExperiment() {
         if (bar) {
           bar.style.width = `${progressPercent}%`;
         }
-
+      },
+      on_finish: (data) => {
         const correctType = jsPsych.evaluateTimelineVariable("type");
-        const currentWord = jsPsych.evaluateTimelineVariable("stimulus");
-
-        document.getElementById("btn-no").onclick = () => {
-          const rt = performance.now() - trialStart;
-          jsPsych.finishTrial({
-            response: 0,
-            rt: Math.round(rt),
-            word: currentWord,
-            type: correctType,
-            isCorrect: correctType === 0
-          });
-        };
-
-        document.getElementById("btn-yes").onclick = () => {
-          const rt = performance.now() - trialStart;
-          jsPsych.finishTrial({
-            response: 1,
-            rt: Math.round(rt),
-            word: currentWord,
-            type: correctType,
-            isCorrect: correctType === 1
-          });
-        };
+        data.isCorrect = (data.response.toUpperCase() === wordSymbol && correctType === 1) ||
+                         (data.response.toUpperCase() === nonWordSymbol && correctType === 0);
+        data.word = jsPsych.evaluateTimelineVariable("stimulus");
+        data.type = correctType;
+        data.rt = data.rt !== null ? Math.round(data.rt) : null;
       }
     };
 
@@ -273,7 +281,7 @@ export default function LextaleExperiment() {
       timeline_variables: test_stimuli
     };
 
-    jsPsych.run([beforeLextale, block, afterLextale]);
+    jsPsych.run([beforeLextale, instructions, block, afterLextale]);
 
     return () => {
       if (jsPsychRef.current) {

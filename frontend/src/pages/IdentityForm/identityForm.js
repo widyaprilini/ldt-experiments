@@ -10,7 +10,8 @@ export default function IdentityForm() {
 
   const [form, setForm] = useState({
     name: "",
-    gender: ""
+    gender: "",
+    dominantHand: ""
   });
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export default function IdentityForm() {
   async function closeFullscreen() {
     // if (document.exitFullscreen) {
     //   await document.exitFullscreen();
+    // }
     if (document.webkitExitFullscreen) { 
       await document.webkitExitFullscreen();
     } else if (document.msExitFullscreen) { 
@@ -84,6 +86,16 @@ export default function IdentityForm() {
         <option value="" disabled>-- Select Gender --</option>
         <option value="M">Male</option>
         <option value="F">Female</option>
+      </select>
+      <select
+        name="dominantHand"
+        value={form.dominantHand}
+        onChange={handleChange}
+        required
+        >
+        <option value="" disabled>-- Select Dominant Hand --</option>
+        <option value="R">Right</option>
+        <option value="L">Left</option>
       </select>
       <button type="submit">Start</button>
     </form>

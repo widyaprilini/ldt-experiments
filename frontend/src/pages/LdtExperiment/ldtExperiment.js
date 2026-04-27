@@ -5,7 +5,7 @@ import htmlKeyboardResponse from "@jspsych/plugin-html-keyboard-response";
 import "jspsych/css/jspsych.css";
 
 import { loadAndShuffleCsv, groupByBlock } from "../../utils";
-import { PHASE } from "../../constants";
+import { PHASE, RIGHT_HANDED_VALUE, LEFT_HANDED_VALUE } from "../../constants";
 import { usePreventLeave } from "../../hooks/usePreventLeave";
 import { submitLdtResult } from "./ldtExperiment.handler";
 
@@ -21,6 +21,11 @@ export default function LdtExperimentNew() {
 
   const respondentInformation = location.state?.form;
   const respondentId = location.state?.respondentId;
+  const dominantHand = respondentInformation?.dominantHand;
+  const isRightHanded = dominantHand === 'R';
+
+  const configuration = isRightHanded ? RIGHT_HANDED_VALUE : LEFT_HANDED_VALUE;
+  const { wordSymbol, nonWordSymbol } = configuration;
 
   function saveToLocal(ldtData) {
     try {
@@ -56,7 +61,7 @@ export default function LdtExperimentNew() {
         <div class="screen">
           ${breakWording}
           <p id="skipText">
-            Press <b>F</b> or <b>J</b> to continue immediately
+            Press <b>F</b> or <b>J</b> to continue
           </p>
         </div>
       `,
@@ -125,7 +130,7 @@ export default function LdtExperimentNew() {
             stimulus: `
               <div class="jspsych-wrapper">
                 <div class="question">
-                  Real Word (F) or Non Word (J)?
+                  Real Word (${wordSymbol}) or Non Word (${nonWordSymbol})?
                 </div>
 
                 <div class="maskTop">
@@ -151,8 +156,8 @@ export default function LdtExperimentNew() {
               const isPseudo = trial.type === "nw";
 
               const isCorrect =
-                (!isPseudo && data.response === "f") ||
-                (isPseudo && data.response === "j");
+                (!isPseudo && data.response?.toUpperCase() === wordSymbol) ||
+                (isPseudo && data.response?.toUpperCase() === nonWordSymbol);
 
               data.isCorrect = isCorrect;
               data.isPseudoword = isPseudo;
@@ -192,8 +197,8 @@ export default function LdtExperimentNew() {
       });
       jsPsychRef.current = jsPsych;
 
-      const practice = await loadAndShuffleCsv("/data/user-simulations.csv", true);
-      const trials = await loadAndShuffleCsv("/data/user-trials.csv", true);
+      const practice = await loadAndShuffleCsv("/tempData/user-simulations.csv", true);
+      const trials = await loadAndShuffleCsv("/tempData/user-trials.csv", true);
 
       const { blockedTrials, totalBlock, totalData } = groupByBlock(trials);
 
@@ -201,11 +206,11 @@ export default function LdtExperimentNew() {
         type: htmlKeyboardResponse,
         stimulus: `
           <div class="screen">
-          <h2>Instructions</h2>
+          <h2>LDT Main Experiments - Instructions</h2>
           <p>
             You will see a word on the screen.<br /><br />
-            Press <b>F</b> if it is a REAL word.<br />
-            Press <b>J</b> if it is a NON word.<br /><br />
+            Press <b>${nonWordSymbol}</b> if it is a NON word.<br/>
+            Press <b>${wordSymbol}</b> if it is a REAL word.<br/><br/>
             Respond as quickly and accurately as possible.
           </p>
           <p>Press <b>F</b> or <b>J</b> to begin.</p>
@@ -309,7 +314,7 @@ export default function LdtExperimentNew() {
                 el.innerHTML = `
                   <p style="color:red">Failed to submit ❌</p>
                   <p>Press <b>SPACE</b> to retry submit</p>
-                  <p>Press <b>ENTER</b> to continue anyway</p>
+                  <p>Press <b>ENTER</b> to finish experiments</p>
                 `
 
               const retryKeyListener = jsPsych.pluginAPI.getKeyboardResponse({
