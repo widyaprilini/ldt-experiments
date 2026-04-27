@@ -34,10 +34,6 @@ export default function LdtExperimentNew() {
   }
 
   function createBreakTrial(totalBlock = 0, blockIndex = 0) {
-    let duration = 60;
-    let timeLeft = 60;
-    let interval;
-
     const afterPracticeWording = `
       <h2>Practice session completed.</h2>
       <p>You will now begin the actual experiment.</p>
@@ -53,36 +49,17 @@ export default function LdtExperimentNew() {
     return {
       type: htmlKeyboardResponse,
       choices: ["f", "j"],
-      trial_duration: duration * 1000,
       data: {
         phase: PHASE.BREAK
       },
       stimulus: `
         <div class="screen">
           ${breakWording}
-          <p>Continue automatically in <span id="countdown">${timeLeft}</span>s</p>
           <p id="skipText">
-            Press F or J to continue immediately
+            Press <b>F</b> or <b>J</b> to continue immediately
           </p>
         </div>
       `,
-      on_load: () => {
-        interval = setInterval(() => {
-          const el = document.getElementById("countdown");
-          if (el) el.textContent = timeLeft;
-
-          if (timeLeft <= 0) {
-            clearInterval(interval);
-            return;
-          }
-
-          timeLeft--;
-        }, 1000);
-      },
-
-      on_finish: () => {
-        if (interval) clearInterval(interval);
-      }
     };
   }
 
