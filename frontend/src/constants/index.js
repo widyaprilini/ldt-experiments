@@ -89,16 +89,15 @@ const LEXTALE_STITMULI_PRACTICE = [
   { id: 0, word: "generic", type: 1 }
 ];
 
-const RIGHT_HANDED_VALUE = {
-  id: "R",
-  wordSymbol: "J",
-  nonWordSymbol: "F"
+const GROUP_VALUE = {
+  A: {
+    wordSymbol: "J",
+    nonWordSymbol: "F"
+  },
+  B: {
+    wordSymbol: "F",
+    nonWordSymbol: "J"
+  },
 };
 
-const LEFT_HANDED_VALUE = {
-  id: "L",
-  wordSymbol: "F",
-  nonWordSymbol: "J"
-}
-
-module.exports = { PHASE, LEXTALE_STIMULI, LEXTALE_STITMULI_PRACTICE, LEXTALE_STIMULI_TEST, RIGHT_HANDED_VALUE, LEFT_HANDED_VALUE };
+module.exports = { PHASE, LEXTALE_STIMULI, LEXTALE_STITMULI_PRACTICE, LEXTALE_STIMULI_TEST, GROUP_VALUE };

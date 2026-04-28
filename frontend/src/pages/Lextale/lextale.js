@@ -5,7 +5,7 @@ import htmlKeyboardResponse from "@jspsych/plugin-html-keyboard-response";
 import htmlButtonResponse from "@jspsych/plugin-html-button-response";
 import "jspsych/css/jspsych.css";
 
-import { LEXTALE_STIMULI, LEXTALE_STITMULI_PRACTICE, LEXTALE_STIMULI_TEST, RIGHT_HANDED_VALUE, LEFT_HANDED_VALUE } from "../../constants";
+import { LEXTALE_STIMULI, LEXTALE_STITMULI_PRACTICE, LEXTALE_STIMULI_TEST, GROUP_VALUE } from "../../constants";
 import { saveLextaleResponse } from "./lextale.handler";
 
 export default function LextaleExperiment() {
@@ -18,11 +18,10 @@ export default function LextaleExperiment() {
 
   const form = location.state?.form;
   const respondentId = location.state?.respondentId;
-  const dominantHand = form?.dominantHand;
-  const isRightHanded = dominantHand === 'R';
+  const group = form?.group;
+  const isGroupA = group === "A";
 
-  const configuration = isRightHanded ? RIGHT_HANDED_VALUE : LEFT_HANDED_VALUE;
-  const { wordSymbol, nonWordSymbol } = configuration;
+  const { wordSymbol, nonWordSymbol } = GROUP_VALUE[group];
 
   useEffect(() => {
     if (hasRun.current) return;
@@ -167,20 +166,26 @@ export default function LextaleExperiment() {
 
     const instructions = {
       type: htmlKeyboardResponse,
-      stimulus: `
-        <div class="overlay">
-          <div class="modal">
-            <h2>Instructions</h2>
-              <p>
-              You will see a word on the screen.<br/><br/>
-              Press <b>${nonWordSymbol}</b> if it is a NON word.<br/>
-              Press <b>${wordSymbol}</b> if it is a REAL word.<br/><br/>
-              Respond as quickly and accurately as possible.
-            </p>
-            <p>Press <b>F</b> or <b>J</b> to begin.</p>
+      stimulus: () => {
+        const wordChoice = `Press <b>${wordSymbol}</b> if it is a REAL word.<br/>`;
+        const nonWordChoice = `Press <b>${nonWordSymbol}</b> if it is a NON word.<br/>`;
+
+        const choice = isGroupA ? `${nonWordChoice}${wordChoice}` : `${wordChoice}${nonWordChoice}`
+
+        return `
+          <div class="overlay">
+            <div class="modal">
+              <h2>Instructions</h2>
+                <p>
+                You will see a word on the screen.<br/><br/>
+                ${choice}
+                <br/>Respond as quickly and accurately as possible.
+              </p>
+              <p>Press <b>F</b> or <b>J</b> to begin.</p>
+              </div>
             </div>
-          </div>
-        `,
+          `
+        },
         choices: ["f", "j"],
         on_finish: () => {
           jsPsych.finishTrial();
@@ -231,7 +236,7 @@ export default function LextaleExperiment() {
         const wordChoice = `<div class="choice word">REAL WORD (<b> ${wordSymbol} </b>)</div>`;
         const nonWordChoice = `<div class="choice non-word">NON WORD (<b> ${nonWordSymbol} </b>)</div>`;
 
-        const choice = isRightHanded ? `${nonWordChoice}${wordChoice}` : `${wordChoice}${nonWordChoice}`
+        const choice = isGroupA ? `${nonWordChoice}${wordChoice}` : `${wordChoice}${nonWordChoice}`
 
         return `
           <div class="overlay">

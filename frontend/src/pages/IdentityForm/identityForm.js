@@ -11,7 +11,7 @@ export default function IdentityForm() {
   const [form, setForm] = useState({
     name: "",
     gender: "",
-    dominantHand: ""
+    group: ""
   });
 
   useEffect(() => {
@@ -88,14 +88,14 @@ export default function IdentityForm() {
         <option value="F">Female</option>
       </select>
       <select
-        name="dominantHand"
-        value={form.dominantHand}
+        name="group"
+        value={form.group}
         onChange={handleChange}
         required
         >
-        <option value="" disabled>-- Select Dominant Hand --</option>
-        <option value="R">Right</option>
-        <option value="L">Left</option>
+        <option value="" disabled>-- Select Group --</option>
+        <option value="A">Group A</option>
+        <option value="B">Group B</option>
       </select>
       <button type="submit">Start</button>
     </form>

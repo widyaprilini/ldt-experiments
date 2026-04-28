@@ -5,7 +5,7 @@ import htmlKeyboardResponse from "@jspsych/plugin-html-keyboard-response";
 import "jspsych/css/jspsych.css";
 
 import { loadAndShuffleCsv, groupByBlock } from "../../utils";
-import { PHASE, RIGHT_HANDED_VALUE, LEFT_HANDED_VALUE } from "../../constants";
+import { PHASE, GROUP_VALUE } from "../../constants";
 import { usePreventLeave } from "../../hooks/usePreventLeave";
 import { submitLdtResult } from "./ldtExperiment.handler";
 
@@ -21,11 +21,11 @@ export default function LdtExperimentNew() {
 
   const respondentInformation = location.state?.form;
   const respondentId = location.state?.respondentId;
-  const dominantHand = respondentInformation?.dominantHand;
-  const isRightHanded = dominantHand === 'R';
+  const group = respondentInformation?.group;
 
-  const configuration = isRightHanded ? RIGHT_HANDED_VALUE : LEFT_HANDED_VALUE;
-  const { wordSymbol, nonWordSymbol } = configuration;
+  const isGroupA = group === "A";
+
+  const { wordSymbol, nonWordSymbol } = GROUP_VALUE[group];
 
   function saveToLocal(ldtData) {
     try {
@@ -120,32 +120,38 @@ export default function LdtExperimentNew() {
               </div>
             `,
             choices: "NO_KEYS",
-            trial_duration: 50,
+            trial_duration: 83,
             data: {
               phase: PHASE.PRIME
             }
           },
           {
             type: htmlKeyboardResponse,
-            stimulus: `
-              <div class="jspsych-wrapper">
-                <div class="question">
-                  Real Word (${wordSymbol}) or Non Word (${nonWordSymbol})?
-                </div>
+            stimulus: () => {
+              const wordKey = `Real Word (${wordSymbol})`;
+              const nonWordKey = `Non Word (${nonWordSymbol})`;
 
-                <div class="maskTop">
-                  ******************************
-                </div>
+              const question = isGroupA ? `${nonWordKey} or ${wordKey}?` : `${wordKey} or ${nonWordKey}?`
+              return `
+                <div class="jspsych-wrapper">
+                  <div class="question">
+                    ${question}
+                  </div>
 
-                <div class="targetWord">
-                  ${trial.target.toUpperCase()}
-                </div>
+                  <div class="maskTop">
+                    ******************************
+                  </div>
 
-                <div class="maskBottom">
-                  ******************************
+                  <div class="targetWord">
+                    ${trial.target.toUpperCase()}
+                  </div>
+
+                  <div class="maskBottom">
+                    ******************************
+                  </div>
                 </div>
-              </div>
-            `,
+              `
+            },
             choices: ["f", "j"],
             trial_duration: 2000,
             data: {
@@ -204,18 +210,24 @@ export default function LdtExperimentNew() {
 
       timeline.push({
         type: htmlKeyboardResponse,
-        stimulus: `
-          <div class="screen">
-          <h2>LDT Main Experiments - Instructions</h2>
-          <p>
-            You will see a word on the screen.<br /><br />
-            Press <b>${nonWordSymbol}</b> if it is a NON word.<br/>
-            Press <b>${wordSymbol}</b> if it is a REAL word.<br/><br/>
-            Respond as quickly and accurately as possible.
-          </p>
-          <p>Press <b>F</b> or <b>J</b> to begin.</p>
-        </div>
-        `,
+        stimulus: () => {
+          const wordChoice = `Press <b>${wordSymbol}</b> if it is a REAL word.<br/>`;
+          const nonWordChoice = `Press <b>${nonWordSymbol}</b> if it is a NON word.<br/>`;
+
+          const choice = isGroupA ? `${nonWordChoice}${wordChoice}` : `${wordChoice}${nonWordChoice}`
+
+          return `
+            <div class="screen">
+            <h2>LDT Main Experiments - Instructions</h2>
+            <p>
+              You will see a word on the screen.<br /><br />
+              ${choice}
+              <br/>Respond as quickly and accurately as possible.
+            </p>
+            <p>Press <b>F</b> or <b>J</b> to begin.</p>
+          </div>
+          `
+        },
         choices: ["f", "j"],
         data: {
           phase: PHASE.INSTRUCTION
