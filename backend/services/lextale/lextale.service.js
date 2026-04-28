@@ -13,7 +13,7 @@ const processLextaleResponse = async (data) => {
   const { 
     results, 
     respondentInformation : {
-      respondentId
+      respondentId, group
     }
   } = data;
 
@@ -26,6 +26,7 @@ const processLextaleResponse = async (data) => {
   
         return [
           respondentId,
+          group,
           word,
           type,
           response,
