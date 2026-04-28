@@ -5,7 +5,7 @@ import htmlKeyboardResponse from "@jspsych/plugin-html-keyboard-response";
 import htmlButtonResponse from "@jspsych/plugin-html-button-response";
 import "jspsych/css/jspsych.css";
 
-import { LEXTALE_STIMULI, LEXTALE_STITMULI_PRACTICE, LEXTALE_STIMULI_TEST, GROUP_VALUE } from "../../constants";
+import { LEXTALE_STIMULI, LEXTALE_STITMULI_PRACTICE, GROUP_VALUE } from "../../constants";
 import { saveLextaleResponse } from "./lextale.handler";
 
 export default function LextaleExperiment() {
@@ -135,7 +135,7 @@ export default function LextaleExperiment() {
       }
     }
 
-    const remainingStimuli = LEXTALE_STIMULI_TEST.filter(s => s.id > 0);
+    const remainingStimuli = LEXTALE_STIMULI.filter(s => s.id > 0);
     const shuffledRemaining = jsPsych.randomization.shuffle(remainingStimuli);
     const stimuliList = [...LEXTALE_STITMULI_PRACTICE, ...shuffledRemaining];
 
