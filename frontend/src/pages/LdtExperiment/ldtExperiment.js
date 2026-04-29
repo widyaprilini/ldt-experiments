@@ -4,12 +4,12 @@ import { initJsPsych } from 'jspsych';
 import htmlKeyboardResponse from "@jspsych/plugin-html-keyboard-response";
 import "jspsych/css/jspsych.css";
 
-import { loadAndShuffleCsv, groupByBlock } from "../../utils";
+import { loadAndShuffleCsv, groupByBlock, lockEsc } from "../../utils";
 import { PHASE, GROUP_VALUE } from "../../constants";
 import { usePreventLeave } from "../../hooks/usePreventLeave";
 import { submitLdtResult } from "./ldtExperiment.handler";
 
-export default function LdtExperimentNew() {
+export default function LdtExperiment() {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -70,8 +70,9 @@ export default function LdtExperimentNew() {
 
   useEffect(() => {
     if (hasRun.current) return;
-
     hasRun.current = true;
+
+    lockEsc();
 
     async function runExperiment() {
       let globalTrialIndex = 0;
@@ -220,7 +221,7 @@ export default function LdtExperimentNew() {
             <div class="screen">
             <h2>LDT Main Experiments - Instructions</h2>
             <p>
-              You will see a word on the screen.<br /><br />
+              You will see a word on the screen.<br/><br />
               ${choice}
               <br/>Respond as quickly and accurately as possible.
             </p>
@@ -361,6 +362,9 @@ export default function LdtExperimentNew() {
           jsPsychRef.current.endExperiment("Component unmounted");
         } catch (e) { }
         jsPsychRef.current = null;
+      }
+      if ('keyboard' in navigator && 'unlock' in navigator.keyboard) {
+        navigator.keyboard.unlock();
       }
     };
   }, []);

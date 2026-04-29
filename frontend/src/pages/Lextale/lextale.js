@@ -5,7 +5,8 @@ import htmlKeyboardResponse from "@jspsych/plugin-html-keyboard-response";
 import htmlButtonResponse from "@jspsych/plugin-html-button-response";
 import "jspsych/css/jspsych.css";
 
-import { LEXTALE_STIMULI, LEXTALE_STITMULI_PRACTICE, GROUP_VALUE } from "../../constants";
+import { LEXTALE_STIMULI, LEXTALE_STIMULI_TEST, LEXTALE_STITMULI_PRACTICE, GROUP_VALUE } from "../../constants";
+import { lockEsc } from "../../utils";
 import { saveLextaleResponse } from "./lextale.handler";
 
 export default function LextaleExperiment() {
@@ -26,6 +27,8 @@ export default function LextaleExperiment() {
   useEffect(() => {
     if (hasRun.current) return;
     hasRun.current = true;
+
+    lockEsc();
 
     const jsPsych = initJsPsych({
       display_element: "jspsych-target",
@@ -294,6 +297,9 @@ export default function LextaleExperiment() {
           jsPsychRef.current.endExperiment("Component unmounted");
         } catch (e) { }
         jsPsychRef.current = null;
+      }
+      if ('keyboard' in navigator && 'unlock' in navigator.keyboard) {
+        navigator.keyboard.unlock();
       }
     };
   }, []);

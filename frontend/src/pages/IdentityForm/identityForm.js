@@ -19,14 +19,6 @@ export default function IdentityForm() {
     closeFullscreen();
   }, []);
 
-  function enterFullscreen() {
-    const el = document.documentElement;
-
-    if (el.requestFullscreen) el.requestFullscreen();
-    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    else if (el.msRequestFullscreen) el.msRequestFullscreen();
-  }
-
   async function closeFullscreen() {
     // if (document.exitFullscreen) {
     //   await document.exitFullscreen();
@@ -47,7 +39,6 @@ export default function IdentityForm() {
     e.preventDefault();
     sessionStorage.setItem("ldt_access", "true");
     localStorage.clear();
-    enterFullscreen();
     navigate("/lextale", {
       state: { form, respondentId }
     });

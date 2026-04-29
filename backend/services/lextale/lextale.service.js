@@ -72,7 +72,7 @@ const processLextaleCorrectCount = async (data) => {
       startTime,
       endTime,
       duration,
-      score,
+      score.toFixed(2),
     ];
 
     await appendToSheet([scoreData], SHEET_RANGE.lextaleScore);
