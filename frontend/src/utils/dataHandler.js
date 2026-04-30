@@ -20,3 +20,15 @@ export function groupByBlock(data) {
     totalData
   };
 }
+
+export function saveToLocal(key, value) {
+    try {
+      localStorage.removeItem(key);
+      const stored = JSON.parse(localStorage.getItem(key) || "[]");
+      stored.push(value);
+      localStorage.setItem(key, JSON.stringify(stored));
+      console.log("✅ Data saved locally as backup.");
+    } catch (err) {
+      console.error("Failed to store backup:", key, err);
+    }
+  }

@@ -4,7 +4,7 @@ import { initJsPsych } from 'jspsych';
 import htmlKeyboardResponse from "@jspsych/plugin-html-keyboard-response";
 import "jspsych/css/jspsych.css";
 
-import { loadAndShuffleCsv, groupByBlock, lockEsc } from "../../utils";
+import { loadAndShuffleCsv, groupByBlock, lockEsc, saveToLocal } from "../../utils";
 import { PHASE, GROUP_VALUE } from "../../constants";
 import { usePreventLeave } from "../../hooks/usePreventLeave";
 import { submitLdtResult } from "./ldtExperiment.handler";
@@ -26,17 +26,6 @@ export default function LdtExperiment() {
   const isGroupA = group === "A";
 
   const { wordSymbol, nonWordSymbol } = GROUP_VALUE[group];
-
-  function saveToLocal(ldtData) {
-    try {
-      const stored = JSON.parse(localStorage.getItem("ldt_backup") || "[]");
-      stored.push(ldtData);
-      localStorage.setItem("ldt_backup", JSON.stringify(stored));
-      console.log("✅ Data saved locally as backup.");
-    } catch (err) {
-      console.error("Failed to store LDT backup:", err);
-    }
-  }
 
   function createBreakTrial(totalBlock = 0, blockIndex = 0) {
     const afterPracticeWording = `
@@ -282,11 +271,15 @@ export default function LdtExperiment() {
             const el = document.getElementById("submit-status");
             if (el) el.innerHTML = `<p>Submitting data...</p>`;
 
-            const results = jsPsych.data.get().filter({ phase: PHASE.TARGET }).values();
+            const results = jsPsych.data.get()
+              .filter({ phase: PHASE.TARGET })
+              .ignore(["stimulus", "trial_index", "trial_type", "plugin_version", "time_elapsed"])
+              .values();
+            
             const respondedCount = results.filter(data => data.response !== null).length;
             const correctCount = results.filter(data => data.isCorrect).length;
 
-            saveToLocal({
+            saveToLocal("ldt_backup", {
               respondentInformation: { ...respondentInformation, respondentId },
               results,
               totalCorrect: correctCount,

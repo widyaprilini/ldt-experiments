@@ -6,7 +6,7 @@ import htmlButtonResponse from "@jspsych/plugin-html-button-response";
 import "jspsych/css/jspsych.css";
 
 import { LEXTALE_STIMULI, LEXTALE_STIMULI_TEST, LEXTALE_STITMULI_PRACTICE, GROUP_VALUE } from "../../constants";
-import { lockEsc } from "../../utils";
+import { lockEsc, saveToLocal } from "../../utils";
 import { saveLextaleResponse } from "./lextale.handler";
 
 export default function LextaleExperiment() {
@@ -47,17 +47,6 @@ export default function LextaleExperiment() {
 
     jsPsychRef.current = jsPsych;
 
-    function saveToLocal(payload) {
-      try {
-        const stored = JSON.parse(localStorage.getItem("lextale_backup") || "[]");
-        stored.push(payload);
-        localStorage.setItem("lextale_backup", JSON.stringify(stored));
-        console.log("✅ Data saved locally as backup.");
-      } catch (err) {
-        console.error("Failed to store LexTALE backup:", err);
-      }
-    }
-
     async function handleDataSubmission() {
       const header = document.getElementById("status-header");
       const msg = document.getElementById("save-msg");
@@ -89,7 +78,7 @@ export default function LextaleExperiment() {
           duration: (new Date(endTime) - new Date(startTime))/1000
         };
 
-      saveToLocal(payload);
+      saveToLocal("lextale_backup", payload);
 
       function showSuccess() {
         header.innerHTML = "Success submitting data!";
